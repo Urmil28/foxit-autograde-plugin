@@ -1,0 +1,12 @@
+﻿E:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(377,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+  SUCCESS: The process "FoxitPhantomPDF.exe" with PID 7968 has been terminated.
+  ElementsProc.cpp
+  LINK : C:\Program Files (x86)\Foxit Software\Foxit PhantomPDF\plugins\RibbonElements.fpi not found or not built by the last incremental link; performing full link
+     Creating library C:\Program Files (x86)\Foxit Software\Foxit PhantomPDF\plugins\RibbonElements.lib and object C:\Program Files (x86)\Foxit Software\Foxit PhantomPDF\plugins\RibbonElements.exp
+  RibbonElements.vcxproj -> C:\Program Files (x86)\Foxit Software\Foxit PhantomPDF\plugins\RibbonElements.fpi
+  
+  
+  Secceed to sign the plugin!
+  
+  
+  
