@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -23,7 +24,7 @@ void InsertTextObj(FPD_Page FPDPage, FPD_TextState textState, FPD_ColorState col
 	FPDPageInsertObject(FPDPage, NULL, pTextObject);
 }
 
-void Testdemo(int score, int max_score)
+void Testdemo(int score, int max_score, float posx, float posy)
 {
 	FPD_Document m_FPDDocument = NULL;
 	FPD_Object m_FPDPageDict = NULL;
@@ -44,11 +45,12 @@ void Testdemo(int score, int max_score)
 	char buffer2[50];
 	_itoa_s(max_score, buffer2, 50, 10);
 	FS_LPCSTR ptr3 = buffer2;
-
+	FS_LPCSTR ptr4 = "Rectangle Placed";
 	const FS_ByteString bstext1 = FSByteStringNew3(ptr1, strlen(ptr1));
 	const FS_ByteString bstext2 = FSByteStringNew3(ptr2, strlen(ptr2));
 	const FS_ByteString bstext3 = FSByteStringNew3(display, strlen(display));
 	const FS_ByteString bstext4 = FSByteStringNew3(ptr3, strlen(ptr3));
+	const FS_ByteString bstext5 = FSByteStringNew3(ptr4, strlen(ptr4));
 
 	FR_Document pFRDoc = FRAppGetActiveDocOfPDDoc();
 	m_FPDDocument = FRDocGetPDDoc(pFRDoc);
@@ -79,6 +81,7 @@ void Testdemo(int score, int max_score)
 	InsertTextObj(m_FPDPage, m_FPDTextState, m_FPDColorState, bstext2, width - 50, height - 30);
 	InsertTextObj(m_FPDPage, m_FPDTextState, m_FPDColorState, bstext3, width - 120, height - 45);
 	InsertTextObj(m_FPDPage, m_FPDTextState, m_FPDColorState, bstext4, width - 50, height - 45);
+	InsertTextObj(m_FPDPage, m_FPDTextState, m_FPDColorState, bstext5, posx, posy);
 	FPDPageGenerateContent(m_FPDPage);
 	FRDocViewDrawNow(pDocView);
 }
@@ -236,26 +239,45 @@ void CElementsProc::OnButtonExecuteProc2(void* clientDate)
 			if (word1 == formdataarray[j][1] && word1 != L"Score" && word1 != L"ScorePage") {
 				if (word2 == formdataarray[j][2]){
 					score++;
-				}			
+				}
+				else {
+					FS_FloatRect rect;
+					//FS_FloatRect *out = &rect;
+					FS_FloatRect *out = (FS_FloatRect*)malloc(sizeof(rect));
+					//std::wstringstream ss;
+					//ss << out;
+					//FRSysShowMessageBox(ss.str().c_str(), MB_OK | MB_ICONINFORMATION, NULL, NULL, FRAppGetMainFrameWnd());
+					FPDFormControlGetRect(fpdFormControl ,out); 
+					//wstringstream wss1, wss2;
+					//wss1 << (float)out->bottom;
+					//wss2 << (float)out->left;
+					Testdemo(score, 0, (float)out->left, out->bottom);
+					Testdemo(score, 0, (float)out->right, out->top);
+					//FRSysShowMessageBox((wss1.str() + wss2.str()).c_str(), MB_OK | MB_ICONINFORMATION, NULL, NULL, FRAppGetMainFrameWnd());
+					//FRSysShowMessageBox(word2.c_str(), MB_OK | MB_ICONINFORMATION, NULL, NULL, FRAppGetMainFrameWnd());
+					free(out);
+				}
 			}
 			if (word1 == L"Max") {
 				max_score = word2;
 			}
 		}
 	}
-
-	Testdemo(score, stoi(max_score));
+	
+	// To print the final score. Commented for now
+	//Testdemo(score, stoi(max_score), 0.0, 0.0);
 	bool a = FPDDocSave(frdDocument,
-		(FS_LPSTR)inputfile, //"E:\\Foxit\\AutoGradePlugIn\\Samples\\R/ibbonElements\\New.pdf" or any static file location will work,
+		(FS_LPSTR)inputfile, //"E:\\Foxit\\AutoGradePlugIn\\Samples\\RibbonElements\\New.pdf" or any static file location will work,
 		FPD_SAVE_DEFAULT,
 		false
 	);
-	if (a) {
+
+	/*if (a) {
 		FRSysShowMessageBox(L"Saved", MB_OK | MB_ICONINFORMATION, NULL, NULL, FRAppGetMainFrameWnd());
 	}
 	else {
 		FRSysShowMessageBox(L"Not Saved", MB_OK | MB_ICONINFORMATION, NULL, NULL, FRAppGetMainFrameWnd());
-	}
+	}*/
 }
 
 
