@@ -24,7 +24,53 @@ void InsertTextObj(FPD_Page FPDPage, FPD_TextState textState, FPD_ColorState col
 	FPDPageInsertObject(FPDPage, NULL, pTextObject);
 }
 
-void Testdemo(int score, int max_score, float posx, float posy)
+void InsertWrongAnswers(wstring word2, float posx, float posy)
+{
+	FPD_Document m_FPDDocument = NULL;
+	FPD_Object m_FPDPageDict = NULL;
+	FPD_Page m_FPDPage = NULL;
+	FPD_FontEncoding m_FPDFontEncoding = NULL;
+	FPD_Font m_FPDFont = NULL;
+	FPD_TextState m_FPDTextState = NULL;
+	FPD_ColorSpace m_FPDColorSpace = NULL;
+	FPD_ColorState m_FPDColorState = NULL;
+
+	
+	string s(word2.begin(), word2.end());
+	FS_LPCSTR ptr1 = s.c_str();
+	const FS_ByteString bstext1 = FSByteStringNew3(ptr1, strlen(ptr1));
+	
+	FR_Document pFRDoc = FRAppGetActiveDocOfPDDoc();
+	m_FPDDocument = FRDocGetPDDoc(pFRDoc);
+	FR_DocView pDocView = FRDocGetCurrentDocView(pFRDoc);
+	FR_PageView pPageView = FRDocViewGetPageView(pDocView, 0);
+	m_FPDPage = FRPageViewGetPDPage(pPageView);
+
+	//font 
+	m_FPDFontEncoding = FPDFontEncodingNew2(FPD_FONT_ENCODING_WINANSI);
+	m_FPDFont = FPDDocAddStandardFont(m_FPDDocument, "TimesNewRoman", m_FPDFontEncoding);
+	m_FPDTextState = FPDTextStateNew();
+	FPDTextStateSetFont(m_FPDTextState, m_FPDFont);
+	FPDTextStateSetFontSize(m_FPDTextState, 12);
+
+	// color
+	float* colorSpaceBuff = new float[3];
+	memset(colorSpaceBuff, 0, 3 * sizeof(float));
+	m_FPDColorSpace = FPDColorSpaceGetStockCS(FPD_CS_DEVICERGB);
+	FPDColorSpaceSetRGB(m_FPDColorSpace, colorSpaceBuff, 255, 0, 0);
+	m_FPDColorState = FPDColorStateNew();
+	FPDColorStateSetFillColor(m_FPDColorState, m_FPDColorSpace, colorSpaceBuff, 3);
+	delete[] colorSpaceBuff;
+
+	// insert Text obj
+	FS_FLOAT height = FPDPageGetPageHeight(m_FPDPage);
+	FS_FLOAT width = FPDPageGetPageWidth(m_FPDPage);
+	InsertTextObj(m_FPDPage, m_FPDTextState, m_FPDColorState, bstext1, posx, posy);
+	FPDPageGenerateContent(m_FPDPage);
+	FRDocViewDrawNow(pDocView);
+}
+
+void Testdemo(int score, int max_score)
 {
 	FPD_Document m_FPDDocument = NULL;
 	FPD_Object m_FPDPageDict = NULL;
@@ -45,12 +91,11 @@ void Testdemo(int score, int max_score, float posx, float posy)
 	char buffer2[50];
 	_itoa_s(max_score, buffer2, 50, 10);
 	FS_LPCSTR ptr3 = buffer2;
-	FS_LPCSTR ptr4 = "Rectangle Placed";
+	
 	const FS_ByteString bstext1 = FSByteStringNew3(ptr1, strlen(ptr1));
 	const FS_ByteString bstext2 = FSByteStringNew3(ptr2, strlen(ptr2));
 	const FS_ByteString bstext3 = FSByteStringNew3(display, strlen(display));
 	const FS_ByteString bstext4 = FSByteStringNew3(ptr3, strlen(ptr3));
-	const FS_ByteString bstext5 = FSByteStringNew3(ptr4, strlen(ptr4));
 
 	FR_Document pFRDoc = FRAppGetActiveDocOfPDDoc();
 	m_FPDDocument = FRDocGetPDDoc(pFRDoc);
@@ -81,7 +126,6 @@ void Testdemo(int score, int max_score, float posx, float posy)
 	InsertTextObj(m_FPDPage, m_FPDTextState, m_FPDColorState, bstext2, width - 50, height - 30);
 	InsertTextObj(m_FPDPage, m_FPDTextState, m_FPDColorState, bstext3, width - 120, height - 45);
 	InsertTextObj(m_FPDPage, m_FPDTextState, m_FPDColorState, bstext4, width - 50, height - 45);
-	InsertTextObj(m_FPDPage, m_FPDTextState, m_FPDColorState, bstext5, posx, posy);
 	FPDPageGenerateContent(m_FPDPage);
 	FRDocViewDrawNow(pDocView);
 }
@@ -242,19 +286,10 @@ void CElementsProc::OnButtonExecuteProc2(void* clientDate)
 				}
 				else {
 					FS_FloatRect rect;
-					//FS_FloatRect *out = &rect;
 					FS_FloatRect *out = (FS_FloatRect*)malloc(sizeof(rect));
-					//std::wstringstream ss;
-					//ss << out;
-					//FRSysShowMessageBox(ss.str().c_str(), MB_OK | MB_ICONINFORMATION, NULL, NULL, FRAppGetMainFrameWnd());
 					FPDFormControlGetRect(fpdFormControl ,out); 
-					//wstringstream wss1, wss2;
-					//wss1 << (float)out->bottom;
-					//wss2 << (float)out->left;
-					Testdemo(score, 0, (float)out->left, out->bottom);
-					Testdemo(score, 0, (float)out->right, out->top);
-					//FRSysShowMessageBox((wss1.str() + wss2.str()).c_str(), MB_OK | MB_ICONINFORMATION, NULL, NULL, FRAppGetMainFrameWnd());
-					//FRSysShowMessageBox(word2.c_str(), MB_OK | MB_ICONINFORMATION, NULL, NULL, FRAppGetMainFrameWnd());
+					InsertWrongAnswers(L"X", out->left - 15, out->top-10);
+					InsertWrongAnswers(L"Correct: "+word2, out->left - 45, out->top-25);
 					free(out);
 				}
 			}
@@ -263,11 +298,11 @@ void CElementsProc::OnButtonExecuteProc2(void* clientDate)
 			}
 		}
 	}
+	Testdemo(score, stoi(max_score));
 	
-	// To print the final score. Commented for now
-	//Testdemo(score, stoi(max_score), 0.0, 0.0);
+	//Aim to save all the changes in the current file.
 	bool a = FPDDocSave(frdDocument,
-		(FS_LPSTR)inputfile, //"E:\\Foxit\\AutoGradePlugIn\\Samples\\RibbonElements\\New.pdf" or any static file location will work,
+		(FS_LPSTR)inputfile, //Currently any static file location will work,
 		FPD_SAVE_DEFAULT,
 		false
 	);
